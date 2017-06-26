@@ -191,3 +191,6 @@ swi='R'      # choose which phase 'R' or 'T'
 v_r=[0,1]      # range arround phi
 
 data.disperison(100,4000,1500,500,swi,v_r,data_str)
+
+
+print('hallo wiggle')
