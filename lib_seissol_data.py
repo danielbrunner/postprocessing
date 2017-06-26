@@ -194,3 +194,4 @@ data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
 
 print('hallo wiggle')
+print('qiabudaliz')
