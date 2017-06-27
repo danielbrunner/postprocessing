@@ -177,7 +177,7 @@ def _theo_disp(swi):
 
 
 
-
+print('dfsadf')
 # def theo_dispersion_curve_GEOPSY():
 #     # f=open('/home/djamel/PHD_projects/force_on_hill/theoretische_dispersion_curve/model_1.disp','r')
 #     # for ii in range(0,8):
