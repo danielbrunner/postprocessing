@@ -9,7 +9,7 @@ import re
 
 
 
-from _utils import max_2D_array, _theo_disp
+from _utils import max_2D_array, _theo_disp, _mode_max
 
 class data_processing(object):
 
@@ -135,7 +135,7 @@ class data_processing(object):
 
         #################################
 
-
+        maa=[]
         for iii in range(vec_phi[0], vec_phi[1]):
             DATA = np.zeros((self.t_n, self.n_r), dtype=complex)
 
@@ -150,17 +150,22 @@ class data_processing(object):
             DISP = np.zeros((len(self.data_R[:, 1, 0]), len(v)), dtype=complex)
             for ii in range(0, len(freq)):
                 for jj in range(0, len(v)):
-                    for kk in range(0, 85):
+                    for kk in range(0, len(self.data_R[0,:,0])):
                         DISP[ii, jj] = DISP[ii, jj] + np.exp(1j * w[ii] * x[kk] / v[jj]) * DATA[ii, kk]
 
             maxx[iii, 0] = max_2D_array(DISP)
 
 
-            for ii in range(0,700):
-                DISP[ii,:]=DISP[ii,:]/max(abs(DISP[ii,:]))
+            # for ii in range(0,700):
+            #     DISP[ii,:]=DISP[ii,:]/max(abs(DISP[ii,:]))
+
+            maa=np.append(maa,_mode_max(DISP, freq, v,swi))
+
+
+            print(maa)
 
             if swi=='T':
-                DISP = DISP * maxx[iii] / data_max[iii]
+                DISP = DISP * maxx[iii] / data_max[iii]-0.5
 
             fig = plt.figure(figsize=(9, 10))
             _theo_disp(swi)
@@ -170,24 +175,92 @@ class data_processing(object):
             plt.ylabel('velocity [m/s]', fontsize=17)
 
             if swi=='R':
-                plt.title('R-component, $F_t/F_n$=' + str(np.round(0.583, 2)) + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
+                plt.title('R-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
             elif swi=='T':
-                plt.title('T-component, $F_t/F_n$=' + str(np.round(0.583, 2)) + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
+                plt.title('T-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
 
             str_save=stri_save+ ', phi= ' + str(int(phii[iii]))+'.png'
             print(str_save)
             fig.savefig(stri_fold+'/'+str_save,format='png')      # save figure
 
-            plt.show()
+            #plt.show()
 
 
         np.save(str_max, maxx)
+        np.save('mode_max_model_real_2_T.npy',maa)
 
-data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_0.2.npy'
+
+
+
+
+data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_peak.npy'
 data = np.load(data_str)
 data=data_processing(data,0.05,700,28,85)
 data.radial_transversal()
-swi='R'      # choose which phase 'R' or 'T'
-v_r=[0,1]      # range arround phi
 
-data.disperison(100,4000,1500,500,swi,v_r,data_str)
+
+aa=np.zeros((28,85))
+
+for jj in range(0,28):
+    for ii in range(0,85):
+        aa[jj,ii]=max(data.data_T[:,ii,jj])/max(data.data_R[:,ii,jj])
+
+
+
+plt.plot(aa[8,:])
+plt.show()
+
+# swi='T'      # choose which phase 'R' or 'T'
+# v_r=[0,28]      # range arround phi
+#
+#data.disperison(100,4000,1500,500,swi,v_r,data_str)
+
+
+
+
+
+
+# aa=np.load('mode_max_model_real_2_R.npy')
+# aa=np.reshape(aa,(28,4))
+# #
+# bb=np.load('mode_max_model_1_T.npy')
+# bb=np.reshape(bb,(28,4))
+# #
+# cc=np.load('mode_max_model_3_T.npy')
+# cc=np.reshape(cc,(28,4))
+# #
+# #
+# n=28
+# phii=np.linspace(0.0, 2.0*np.pi*(n-1)/n,n)
+# #phii=np.take(phii, range(0, len(phii)+1), mode='wrap')
+#
+# fig = plt.figure(figsize=(15, 16))
+# ax = plt.subplot(221, projection='polar')
+#
+# # ax.plot(phii, aa[:,0],'g', linewidth=2)
+# #
+# ax.plot(phii, aa[:,0],'k', linewidth=2)
+# ax.plot(phii, aa[:,1],'b', linewidth=2)
+# ax.plot(phii, aa[:,2],'r', linewidth=2)
+# ax.plot(phii, aa[:,3],'m', linewidth=2)
+#
+#
+# ax = plt.subplot(222, projection='polar')
+#
+# ax.plot(phii, bb[:,0],'k', linewidth=2)
+# ax.plot(phii, bb[:,1],'b', linewidth=2)
+# ax.plot(phii, bb[:,2],'r', linewidth=2)
+# ax.plot(phii, bb[:,3],'m', linewidth=2)
+#
+#
+#
+# ax = plt.subplot(223, projection='polar')
+#
+# ax.plot(phii, cc[:,0],'k', linewidth=2)
+# ax.plot(phii, cc[:,1],'b', linewidth=2)
+# ax.plot(phii, cc[:,2],'r', linewidth=2)
+# ax.plot(phii, cc[:,3],'m', linewidth=2)
+#
+#
+# plt.show()
+

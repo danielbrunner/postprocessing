@@ -111,9 +111,9 @@ def max_2D_array(A):
 def _theo_disp(swi):
     'diese funktion ist nur fuer dispersion methode zu verwenden'
 
-    green_line = mlines.Line2D([], [], color='g', markersize=10, linewidth=2, label='Fundamental Mode')
-    red_line = mlines.Line2D([], [], color='r', markersize=10, linewidth=2, label='1. overtone')
-    black_line = mlines.Line2D([], [], color='k', markersize=10, linewidth=2, label='2. overtone')
+    green_line = mlines.Line2D([], [], color='b', markersize=10, linewidth=2, label='Fundamental Mode')
+    red_line = mlines.Line2D([], [], color='g', markersize=10, linewidth=2, label='1. overtone')
+    black_line = mlines.Line2D([], [], color='r', markersize=10, linewidth=2, label='2. overtone')
     cyan_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='3. overtone')
     magenta_line = mlines.Line2D([], [], color='m', markersize=10, linewidth=2, label='4. overtone')
     yellow_line = mlines.Line2D([], [], color='y', markersize=10, linewidth=2, label='5. overtone')
@@ -135,20 +135,12 @@ def _theo_disp(swi):
     for ii in range(0,len(line)):
 
         if line[ii][0]=='#':
-
             if line[ii+1][0] != '#':
-
-
-                print('mode' + str(ll))
                 b.append(ll)
-
             elif line[ii+1][0] == '#':
-
                 if line[ii+2][0] == '#':
-
                     continue
                 elif line[ii+2][0] != '#':
-                    print(ll)
                     b.append(ll)
         elif line[ii][0]!='#':
             ll=ll+1
@@ -170,15 +162,109 @@ def _theo_disp(swi):
 
 
     for ii in range(0,len(b[0,:])-1):
-        plt.plot(data[b[swi,ii]+1:b[swi,ii+1]-2, 0], 1 / data[b[swi,ii]+1:b[swi,ii+1]-2, 1], linewidth=3)
+        plt.plot(data[b[swi,ii]+1:b[swi,ii+1]-2, 0], 1 / data[b[swi,ii]+1:b[swi,ii+1]-2, 1], linewidth=2)
         ###############!!!!!!! -2 bei array fuer 20Hz getan weil sonst kurve udberlappt vorher war -2 nicht da!!!!!
 
     plt.legend(handles=prov[0:ii+1], loc=3, fontsize=10)
 
 
+def find_nearest(array,value):
+    idx = (np.abs(array-value)).argmin()
+    return idx
 
-print('dfsadf')
-# def theo_dispersion_curve_GEOPSY():
+
+def _mode_max(DISP,freq,v,swi):
+    '''hier wird die maximum values der einzelnen moden gefunden und die freq und v dieses ortes zurueckgegegen'''
+    file = open("/home/djamel/GEOPSY/gpdc/four_layer_model_5_mode.disp", "r")
+    line = file.readlines()
+    #swi='T'
+    if swi == 'R':
+        swi = 0
+    elif swi == 'T':
+        swi = 1
+
+    b = []
+    ll = 0
+    for ii in range(0, len(line)):
+
+        if line[ii][0] == '#':
+
+            if line[ii + 1][0] != '#':
+
+                b.append(ll)
+
+            elif line[ii + 1][0] == '#':
+
+                if line[ii + 2][0] == '#':
+
+                    continue
+                elif line[ii + 2][0] != '#':
+                    b.append(ll)
+        elif line[ii][0] != '#':
+            ll = ll + 1
+        last = ii
+    b.append(last)
+
+    b = [x - 1 for x in b[1:]]
+    b[0] = 0
+    b = np.reshape(b, (2, len(b) / 2))
+
+    data = np.loadtxt('/home/djamel/GEOPSY/gpdc/four_layer_model_5_mode.disp', skiprows=8)
+
+    fr=[]
+    vv=[]
+    ma=0.0
+    maa=[]
+    int_h = 1
+    int_l=3
+
+    incr_a=[17,15,10,4]
+    incr_e=[70,50,41,33]
+    ll=0
+
+    for kk in range(0,4):
+        fr=[]
+        vv=[]
+        for jj in range(incr_a[ll],incr_e[ll],1):
+            for ii in range(b[swi,kk]+1,b[swi,kk+1]-2):
+                if ii==b[swi,kk]+jj:
+                    ww=[data[ii, 0], 1 / data[ii, 1]]
+                    fr.append(find_nearest(freq,ww[0]))
+                    vv.append(find_nearest(v, ww[1]))
+
+
+            for ii in range(0, len(vv)):
+                prov=max_2D_array(abs(DISP[fr[ii]-int_h:fr[ii]+int_h,vv[ii]-int_l:vv[ii]+int_l]))
+                if prov>ma:
+                    ma=prov
+        maa=np.append(maa,ma)
+        ma = 0.0
+
+        for ii in range(0,len(vv)):
+            plt.imshow(abs(DISP[fr[ii]-int_h:fr[ii]+int_h,vv[ii]-int_l:vv[ii]+int_l]).T,
+                       aspect='auto', extent=(freq[fr[ii]-int_l], freq[fr[ii]+int_l], v[vv[ii]+int_h], v[vv[ii]-int_h]))
+
+
+
+        plt.plot(data[b[swi, kk] + 1:b[swi, kk + 1] - 2, 0], 1 / data[b[swi, kk] + 1:b[swi, kk + 1] - 2, 1], linewidth=3)
+
+
+        ll=ll+1
+
+
+    #plt.show()
+
+    return maa
+
+
+
+    # plt.plot(ww[:,0])
+    # plt.show()
+        ###############!!!!!!! -2 bei array fuer 20Hz getan weil sonst kurve udberlappt vorher war -2 nicht da!!!!!
+
+#_mode_max()
+
+    # def theo_dispersion_curve_GEOPSY():
 #     # f=open('/home/djamel/PHD_projects/force_on_hill/theoretische_dispersion_curve/model_1.disp','r')
 #     # for ii in range(0,8):
 #     #    trash=f.readline()
