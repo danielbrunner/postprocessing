@@ -252,7 +252,7 @@ def _mode_max(DISP,freq,v,swi):
         ll=ll+1
 
 
-    #plt.show()
+    plt.show()
 
     return maa
 

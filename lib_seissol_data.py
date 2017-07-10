@@ -197,23 +197,27 @@ data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_p
 data = np.load(data_str)
 data=data_processing(data,0.05,700,28,85)
 data.radial_transversal()
-
-
-aa=np.zeros((28,85))
-
-for jj in range(0,28):
-    for ii in range(0,85):
-        aa[jj,ii]=max(data.data_T[:,ii,jj])/max(data.data_R[:,ii,jj])
-
-
-
-plt.plot(aa[8,:])
-plt.show()
-
-# swi='T'      # choose which phase 'R' or 'T'
-# v_r=[0,28]      # range arround phi
-#
 #data.disperison(100,4000,1500,500,swi,v_r,data_str)
+
+
+# aa=np.zeros((28,85))
+#
+# for jj in range(0,28):
+#     for ii in range(0,85):
+#         aa[jj,ii]=max(data.data_T[:,ii,jj])/max(data.data_R[:,ii,jj])
+#
+#
+#
+# plt.plot(aa[8,:])
+# plt.show()
+
+swi='T'      # choose which phase 'R' or 'T'
+v_r=[3,4]      # range arround phi
+
+data.disperison(100,4000,1500,500,swi,v_r,data_str)
+
+
+
 
 
 
