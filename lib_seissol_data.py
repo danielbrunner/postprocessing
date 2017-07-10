@@ -159,7 +159,7 @@ class data_processing(object):
             # for ii in range(0,700):
             #     DISP[ii,:]=DISP[ii,:]/max(abs(DISP[ii,:]))
 
-            maa=np.append(maa,_mode_max(DISP, freq, v,swi))
+            #maa=np.append(maa,_mode_max(DISP, freq, v,swi))
 
 
             print(maa)
@@ -186,18 +186,18 @@ class data_processing(object):
             #plt.show()
 
 
-        np.save(str_max, maxx)
-        np.save('mode_max_model_real_2_T.npy',maa)
+        # np.save(str_max, maxx)
+        # np.save('mode_max_model_real_2_T.npy',maa)
 
 
 
 
 
-data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_peak.npy'
-data = np.load(data_str)
-data=data_processing(data,0.05,700,28,85)
-data.radial_transversal()
-#data.disperison(100,4000,1500,500,swi,v_r,data_str)
+# data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_peak.npy'
+# data = np.load(data_str)
+# data=data_processing(data,0.05,700,28,85)
+# data.radial_transversal()
+# data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
 
 # aa=np.zeros((28,85))
@@ -211,10 +211,10 @@ data.radial_transversal()
 # plt.plot(aa[8,:])
 # plt.show()
 
-swi='T'      # choose which phase 'R' or 'T'
-v_r=[3,4]      # range arround phi
-
-data.disperison(100,4000,1500,500,swi,v_r,data_str)
+# swi='T'      # choose which phase 'R' or 'T'
+# v_r=[0,28]      # range arround phi
+#
+#data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
 
 
