@@ -111,12 +111,12 @@ def max_2D_array(A):
 def _theo_disp(swi):
     'diese funktion ist nur fuer dispersion methode zu verwenden'
 
-    green_line = mlines.Line2D([], [], color='b', markersize=10, linewidth=2, label='Fundamental Mode')
-    red_line = mlines.Line2D([], [], color='g', markersize=10, linewidth=2, label='1. overtone')
-    black_line = mlines.Line2D([], [], color='r', markersize=10, linewidth=2, label='2. overtone')
+    green_line = mlines.Line2D([], [], color='chocolate', markersize=10, linewidth=2, label='Fundamental Mode')
+    red_line = mlines.Line2D([], [], color='wheat', markersize=10, linewidth=2, label='overtones')
+    black_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='2. overtone')
     cyan_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='3. overtone')
-    magenta_line = mlines.Line2D([], [], color='m', markersize=10, linewidth=2, label='4. overtone')
-    yellow_line = mlines.Line2D([], [], color='y', markersize=10, linewidth=2, label='5. overtone')
+    magenta_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='4. overtone')
+    yellow_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='5. overtone')
 
     prov=[green_line, red_line, black_line, cyan_line, magenta_line,yellow_line]
 
@@ -162,10 +162,13 @@ def _theo_disp(swi):
 
 
     for ii in range(0,len(b[0,:])-1):
-        plt.plot(data[b[swi,ii]+1:b[swi,ii+1]-2, 0], 1 / data[b[swi,ii]+1:b[swi,ii+1]-2, 1], linewidth=2)
+        if ii==0:
+            plt.plot(data[b[swi,ii]+1:b[swi,ii+1]-2, 0], 1 / data[b[swi,ii]+1:b[swi,ii+1]-2, 1], linewidth=4,color='chocolate', alpha=0.9)
+        if ii != 0:
+            plt.plot(data[b[swi, ii] + 1:b[swi, ii + 1] - 2, 0], 1 / data[b[swi, ii] + 1:b[swi, ii + 1] - 2, 1],linewidth=4, color='wheat', alpha=0.9)
         ###############!!!!!!! -2 bei array fuer 20Hz getan weil sonst kurve udberlappt vorher war -2 nicht da!!!!!
 
-    plt.legend(handles=prov[0:ii+1], loc=3, fontsize=10)
+    plt.legend(handles=prov[0:2], loc=3, fontsize=16)
 
 
 def find_nearest(array,value):

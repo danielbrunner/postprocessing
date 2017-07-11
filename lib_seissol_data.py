@@ -156,8 +156,8 @@ class data_processing(object):
             maxx[iii, 0] = max_2D_array(DISP)
 
 
-            # for ii in range(0,700):
-            #     DISP[ii,:]=DISP[ii,:]/max(abs(DISP[ii,:]))
+            for ii in range(0,700):
+                DISP[ii,:]=DISP[ii,:]/max(abs(DISP[ii,:]))
 
             #maa=np.append(maa,_mode_max(DISP, freq, v,swi))
 
@@ -167,21 +167,22 @@ class data_processing(object):
             if swi=='T':
                 DISP = DISP * maxx[iii] / data_max[iii]-0.5
 
-            fig = plt.figure(figsize=(9, 10))
+            #fig = plt.figure(figsize=(9, 10))#######
+            plt.subplot(122)
             _theo_disp(swi)
-            plt.imshow(abs(DISP[0:180, :]).T, aspect='auto', extent=(freq[0], freq[180], 1500, 4000))
+            plt.imshow(abs(DISP[0:180, :]).T, aspect='auto', extent=(freq[0], freq[180], 1500, 4000),cmap='Reds')
             plt.colorbar()
             plt.xlabel('frequency [Hz]', fontsize=17)
             plt.ylabel('velocity [m/s]', fontsize=17)
 
-            if swi=='R':
-                plt.title('R-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
-            elif swi=='T':
-                plt.title('T-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
+            # if swi=='R':
+            #     plt.title('R-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
+            # elif swi=='T':
+            #     plt.title('T-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
 
             str_save=stri_save+ ', phi= ' + str(int(phii[iii]))+'.png'
             print(str_save)
-            fig.savefig(stri_fold+'/'+str_save,format='png')      # save figure
+            #fig.savefig(stri_fold+'/'+str_save,format='png')      # save figure
 
             #plt.show()
 
