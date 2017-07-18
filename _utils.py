@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from scipy import signal
 
 
 def phases(d_r,dr_1,num_r):
@@ -111,8 +112,8 @@ def max_2D_array(A):
 def _theo_disp(swi):
     'diese funktion ist nur fuer dispersion methode zu verwenden'
 
-    green_line = mlines.Line2D([], [], color='chocolate', markersize=10, linewidth=2, label='Fundamental Mode')
-    red_line = mlines.Line2D([], [], color='wheat', markersize=10, linewidth=2, label='overtones')
+    green_line = mlines.Line2D([], [], color='tan', markersize=10, linewidth=2, label='Fundamental Mode')
+    red_line = mlines.Line2D([], [], color='wheat', markersize=10, linewidth=2, label='1. overtone')
     black_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='2. overtone')
     cyan_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='3. overtone')
     magenta_line = mlines.Line2D([], [], color='c', markersize=10, linewidth=2, label='4. overtone')
@@ -258,6 +259,46 @@ def _mode_max(DISP,freq,v,swi):
     #plt.show()
 
     return maa
+
+
+def filter(data,N,Wn):
+    b, a = signal.butter(N, Wn, 'band')
+    #data_filt=np.zeros_like(data)
+    # for ii in range(0,len(data[0,:,0])):
+    #     for jj in range(0, len(data[0, 0, :])):
+    data_filt = signal.filtfilt(b, a, data)
+
+    #data_filt[:,ii,jj] = [[signal.filtfilt(b, a, data[:,ii,jj]) for ii in range(0,len(data[0,:,0]))] for jj in range(0,len(data[0,0,:]))]
+    return data_filt
+
+def gauss_window(data,t,shift,shift2):
+    window = signal.gaussian(len(t), std=22)
+    window = np.roll(window, shift2)
+    window=np.roll(window, shift)
+    data_win=window*data
+    return data_win
+
+# oberste modes -> ii*2
+
+
+# data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_real_2_f_peak.npy'
+# data = np.load(data_str)
+#
+# dt=0.05
+#
+#
+#
+# data=data_processing(data,0.05,700,28,63)
+# data.radial_transversal()
+
+
+
+
+
+
+
+
+
 
 
 

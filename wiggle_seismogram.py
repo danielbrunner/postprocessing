@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from lib_seissol_data import data_processing
-from _utils import phases
+from _utils import phases,filter,gauss_window
 import re
 import os, sys
 
@@ -33,8 +33,8 @@ for nu1 in seissol_arr:
 
 ############## choose parameters for plotting
 
-ampl=np.arange(22, 85)*50000
-#ampl[0:19]=0
+ampl=np.arange(25, 88)*75000
+ampl[0:1]=ampl[0:1]*np.arange(2, 3)[::-1]*1.2
 
 
 comp='R'                # R or T component
@@ -60,6 +60,7 @@ if comp=='R':
 
     phase1_x=[0.0, 17.5,30.0]
     phase2_x = [0.0, 14.8, 30.0]
+    phase3_x = [0.0, 12.8, 30.0]
     # phase4_x = [0.0, 16.5, 30.0]
     #
     #
@@ -68,6 +69,7 @@ if comp=='R':
     fm=str(int((phase_y[1]-phase_y[0]) / (phasefm_x[1]-phasefm_x[0])))            # fundamental Love wave
     m1=str(int((phase_y[1]-phase_y[0]) / (phase1_x[1]-phase1_x[0])))             # 1. Love mode
     m2 = str(int((phase_y[1] - phase_y[0]) / (phase2_x[1] - phase1_x[0])))  # 1. Love mode
+    m3 = str(int((phase_y[1] - phase_y[0]) / (phase3_x[1] - phase1_x[0])))  # 1. Love mode
     # m3 = str(int((phase_y[1] - phase_y[0]) / (phase4_x[1] - phase2_x[0])))  # 1. Love mode
     # m2=str(int((phase_y[1]-phase_y[0]) / (phase3_x[1]-phase3_x[0])))             # 1. Love mode
 
@@ -86,7 +88,7 @@ def legend_plot(data_seissol):
         red[ii] = mlines.Line2D([], [], color=col[ii], markersize=10, linewidth=2,label='$F_t/F_n$= '+str(data_seissol[seissol_arr[ii]]['ttn']))
         strii.append(red[ii])
 
-    plt.axis([0, 27, 16000, 54000])
+    plt.axis([0, 27, 15000, 54000])
     #plt.legend(handles=strii[0:len(seissol_arr)], loc='lower right')
     #plt.title(comp+'-component' + ', $\phi$= ' + str(int(phii[kk])), fontsize=17)
     plt.ylabel('distance [m]')
@@ -95,11 +97,22 @@ def legend_plot(data_seissol):
 
 
 
-#######################
+####################### filter!!!
+dt=0.05
+f_n=1/(dt*2)
+
+f = 0.01
+fe = 5.2
+Wn = f / f_n
+Wn = [f / f_n, fe / f_n]
+
+
+#data_filt=filter(data.data_R, 4, Wn)
+####################
 
 
 phii=np.arange(0,360,360/float(data_seissol[seissol_arr[0]]['n_circ']),dtype=float)
-for kk in range(3,4):
+for kk in range(5,6):
     fig=plt.figure(figsize=(24, 16))
     #plt.subplot(121)
     ax=fig.add_subplot(1, 2, 1)
@@ -111,49 +124,85 @@ for kk in range(3,4):
         if ii % 4== 0:
             ll = 0
             for ari in seissol_arr:
-                plt.plot(data_seissol[ari]['t'],d_a + ii * d_r + ampl[ii] * data_seissol[ari][comp][:,kk,ii] , col[ll], linewidth=2)
+                plt.plot(data_seissol[ari]['t'],d_a + ii * d_r + ampl[ii] * gauss_window(filter(data_seissol[ari][comp][:,kk,ii],6,Wn),data_seissol[ari]['t'],ii*5,-275) , col[ll], linewidth=2)
+                #plt.plot(data_seissol[ari]['t'],d_a + ii * d_r + ampl[ii] * data_seissol[ari][comp][:, kk+10, ii], 'g',linewidth=2)
+                #plt.plot(data_seissol[ari]['t'],d_a + ii * d_r + ampl[ii] * data_seissol[ari][comp][:, kk, ii], 'b',linewidth=2)
                 ll=ll+1
 
-        plt.plot(phase1_x, phase_y, color='wheat', linewidth=3, alpha=1.0)
-        plt.plot(phase2_x, phase_y, color='blue', linewidth=3, alpha=1.0)
-        # plt.plot(phase4_x, phase_y, color='green', linewidth=3, alpha=1.0)
+        # plt.plot(phasefm_x, phase_y, color='wheat', linewidth=3, alpha=1.0)
+        # plt.plot(phase1_x, phase_y, color='wheat', linewidth=3, alpha=1.0)
+        # plt.plot(phase2_x, phase_y, color='blue', linewidth=3, alpha=1.0)
+        # plt.plot(phase3_x, phase_y, color='green', linewidth=3, alpha=1.0)
         # plt.plot(phase1_x, phase_y,'chocolate', linewidth=3, alpha=1.0)
 
         hh=hh+1
 
-    #plt.fill_between(phase3_x, phase_y,color='wheat', alpha=1.0)
-    #plt.fill_between(phase1_x, phase_y,color='chocolate', alpha=1.0)
-    #plt.fill_between(phase2_x, phase_y, color='white', alpha=0.8)
+    plt.fill_between(phase3_x, phase_y,color='wheat', alpha=1.0)
+    #plt.fill_between(phase2_x, phase_y,color='wheat', alpha=0.8)
+    plt.fill_between(phase1_x, phase_y, color='ivory', alpha=0.8)
+    plt.fill_between(phasefm_x, phase_y, color='tan', alpha=0.8)
+
 
     #plt.text(21.0, 51500, '0. mode', fontsize=18,bbox={'facecolor': 'chocolate', 'alpha': 1})
-    plt.text(26.0, 51500, '1. mode '+str(m1), fontsize=18, bbox={'facecolor': 'chocolate', 'alpha': 1})
-    plt.text(19.0, 51500, '2. mode ' + str(m2), fontsize=18, bbox={'facecolor': 'chocolate', 'alpha': 1})
+    plt.text(17.8, 51500, '1./2./3. mode ', fontsize=18, bbox={'facecolor': 'ivory', 'alpha': 1})
+    #plt.text(19.0, 51500, '2. mode ' + str(m2), fontsize=18, bbox={'facecolor': 'chocolate', 'alpha': 1})
+    #plt.text(13.0, 51500, 'higher modes ', fontsize=18, bbox={'facecolor': 'wheat', 'alpha': 1})
+    #plt.text(21.0, 51500, '0. mode ', fontsize=18, bbox={'facecolor': 'tan', 'alpha': 1})
+
     #plt.text(12.5, 51500, 'overtones', fontsize=18, bbox={'facecolor': 'wheat', 'alpha': 1})
+
+
     #plt.text(25.5, 55500, comp+'-component' + ', $\phi$= ' + str(int(phii[kk])), fontsize=23,weight='semibold')
 
     legend_plot(data_seissol)
 
 
 
-    stri='wiggle, models real 2, f peak, '+comp+'-component'+str(360/26*kk)+'.png'
-    fig.savefig(stri,format='png')      # save figure
-
+    # stri='wiggle, models real 2, f peak, '+comp+'-component'+str(360/26*kk)+'.png'
+    # fig.savefig(stri,format='png')      # save figure
+    #
+    #
+    #
+    # data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_real_2_f_peak.npy'
+    # data = np.load(data_str)
+    # data=data_processing(data,0.05,700,28,63)
+    # data.radial_transversal()
+    # swi='R'      # choose which phase 'R' or 'T'
+    # v_r=[kk,kk+1]      # range arround phi
+    #
+    #
+    # data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
 
     data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_real_2_f_peak.npy'
     data = np.load(data_str)
+
+    dt=0.05
+    f_n=1/(dt*2)
+
+    f=0.1
+    fe=2
+    Wn=f/f_n
+    Wn = [f / f_n, fe/f_n]
+
+
+
     data=data_processing(data,0.05,700,28,63)
     data.radial_transversal()
+    data.filter_but(6,Wn)
+
+
     swi='R'      # choose which phase 'R' or 'T'
     v_r=[kk,kk+1]      # range arround phi
 
-
     data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
+
+
 #
-    stri='wiggle, models real 2, f peak, '+comp+'-component'+str(360/26*kk)+'.png'
-    fig.savefig(stri,format='png')      # save figure
+    # stri='wiggle, models real 2, f peak, higher modes, '+comp+'-component'+str(360/26*kk)+'.png'
+    # fig.savefig(stri,format='png')      # save figure
 
 
 
-#plt.show()
+plt.show()

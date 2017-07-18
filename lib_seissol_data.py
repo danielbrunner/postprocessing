@@ -6,10 +6,11 @@ import matplotlib.lines as mlines
 import inspect
 import os.path
 import re
+from scipy import signal
 
 
 
-from _utils import max_2D_array, _theo_disp, _mode_max
+from _utils import max_2D_array, _theo_disp, _mode_max, gauss_window
 
 class data_processing(object):
 
@@ -141,7 +142,8 @@ class data_processing(object):
 
             if swi=='R':
                 for ii in range(0, self.n_r):
-                    DATA[:, ii] = np.fft.fft(self.data_R[:, ii, iii])
+                    #self.data_R[0:ii*13+100, ii, iii]=0
+                    DATA[:, ii] = np.fft.fft(gauss_window(self.data_R[:, ii, iii],self.data_t,ii*5,-255))
 
             if swi=='T':
                 for ii in range(0, self.n_r):
@@ -180,8 +182,8 @@ class data_processing(object):
             # elif swi=='T':
             #     plt.title('T-component, ' + ', $\phi$= ' + str(int(phii[iii])),fontsize=17)
 
-            str_save=stri_save+ ', phi= ' + str(int(phii[iii]))+'.png'
-            print(str_save)
+            # str_save=stri_save+ ', phi= ' + str(int(phii[iii]))+'.png'
+            # print(str_save)
             #fig.savefig(stri_fold+'/'+str_save,format='png')      # save figure
 
             #plt.show()
@@ -191,13 +193,40 @@ class data_processing(object):
         # np.save('mode_max_model_real_2_T.npy',maa)
 
 
+    def filter_but(self, N, Wn):
+        b, a = signal.butter(N, Wn, 'band')
+        self.data_filt_R = np.zeros_like(self.data_R)
+        self.data_filt_T = np.zeros_like(self.data_T)
+        for ii in range(0, len(self.data_R[0, :, 0])):
+            for jj in range(0, len(self.data_R[0, 0, :])):
+                self.data_filt_R[:, ii, jj] = signal.filtfilt(b, a, self.data_R[:, ii, jj])
+                self.data_filt_T[:, ii, jj] = signal.filtfilt(b, a, self.data_T[:, ii, jj])
+
+        # data_filt[:,ii,jj] = [[signal.filtfilt(b, a, data[:,ii,jj]) for ii in range(0,len(data[0,:,0]))] for jj in range(0,len(data[0,0,:]))]
+        #return data_filt
 
 
-
-# data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_3_f_peak.npy'
+# data_str='/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_real_2_f_peak.npy'
 # data = np.load(data_str)
-# data=data_processing(data,0.05,700,28,85)
+#
+# dt=0.05
+# f_n=1/(dt*2)
+#
+# f=2
+#
+# Wn=f/f_n
+#
+# print(1/dt)
+#
+#
+#
+# data=data_processing(data,0.05,700,28,63)
 # data.radial_transversal()
+# data.filter_but(4,Wn)
+#
+# swi='R'      # choose which phase 'R' or 'T'
+# v_r=[4,5]      # range arround phi
+#
 # data.disperison(100,4000,1500,500,swi,v_r,data_str)
 
 
@@ -269,3 +298,24 @@ class data_processing(object):
 #
 # plt.show()
 
+
+
+
+# data_str = '/home/djamel/PHD_projects/force_on_hill/results_seismogram/model_real_2_f_peak.npy'
+# data = np.load(data_str)
+# data = data_processing(data, 0.05, 700, 28, 63)
+# data.radial_transversal()
+#
+# dt=0.05
+# f_n=1/(dt*2)
+#
+# f=1
+#
+# Wn=f/f_n
+#
+# print(1/dt)
+# data_filt=filter(data.data_R, 4, Wn)
+#
+# plt.plot(data_filt[:,0,0])
+# plt.plot(data.data_R[:, 0, 0])
+# plt.show()
